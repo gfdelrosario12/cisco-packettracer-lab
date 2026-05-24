@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card'
+import { ExternalLink } from 'lucide-react'
 
 export default function OverviewSection() {
   return (
@@ -9,6 +10,30 @@ export default function OverviewSection() {
           Bonifacio Global City, Philippines
         </p>
       </div>
+
+      <Card className="border-border bg-card p-6">
+        <h3 className="font-semibold text-foreground mb-4">Project Resources</h3>
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+          <a
+            href="https://docs.google.com/document/d/1aLr8yunrP0r1wlvu-LhCnp4QcPiJAS1jsPULtY5AUww/edit?tab=t.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center sm:justify-start gap-2 text-accent hover:text-accent/80 transition-colors bg-accent/10 hover:bg-accent/20 px-4 py-2 rounded-lg"
+          >
+            <ExternalLink size={18} />
+            <span className="font-medium">Image Documentation</span>
+          </a>
+          <a
+            href="https://drive.google.com/drive/folders/1mybbrDqN6yczSUZk-s8rWFk1BViSKoGZ?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center sm:justify-start gap-2 text-accent hover:text-accent/80 transition-colors bg-accent/10 hover:bg-accent/20 px-4 py-2 rounded-lg"
+          >
+            <ExternalLink size={18} />
+            <span className="font-medium">Packet Tracer Checkpoints</span>
+          </a>
+        </div>
+      </Card>
 
       <Card className="border-border bg-card p-6">
         <div className="space-y-4">
