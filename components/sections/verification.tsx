@@ -1,6 +1,36 @@
-import { Card } from '@/components/ui/card'
+'use client'
 
-function CommandGroup({ title, description, commands }: { title: string; description: string; commands: string[] }) {
+import { useState } from 'react'
+import { Card } from '@/components/ui/card'
+import { Copy, Check } from 'lucide-react'
+
+interface CommandObj {
+  cmd: string
+  device?: string
+}
+
+function CommandItem({ item }: { item: CommandObj }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    navigator.clipboard.writeText(item.cmd)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="flex items-center justify-between rounded bg-black/40 px-4 py-2 font-mono text-xs md:text-sm text-foreground">
+      <span>
+        {item.cmd}
+        {item.device && <span className="text-muted-foreground ml-2">({item.device})</span>}
+      </span>
+      <button onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors ml-4" title="Copy command">
+        {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+      </button>
+    </div>
+  )
+}
+
+function CommandGroup({ title, description, commands }: { title: string; description: string; commands: CommandObj[] }) {
   return (
     <Card className="border-border bg-card p-6 space-y-3">
       <div>
@@ -8,10 +38,8 @@ function CommandGroup({ title, description, commands }: { title: string; descrip
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
       <div className="space-y-2">
-        {commands.map((cmd, i) => (
-          <div key={i} className="rounded bg-black/40 px-4 py-2 font-mono text-xs md:text-sm text-foreground">
-            {cmd}
-          </div>
+        {commands.map((item, i) => (
+          <CommandItem key={i} item={item} />
         ))}
       </div>
     </Card>
@@ -29,72 +57,19 @@ export default function VerificationSection() {
       </div>
 
       <CommandGroup
-        title="General Interface & VLAN Status"
-        description="Check basic interface configuration and VLAN assignments"
+        title="Key Verification Commands"
+        description="Run these commands to verify the operational state"
         commands={[
-          'show ip interface brief',
-          'show vlan brief (on SW-DIST and access switches)',
-          'show interfaces trunk',
-          'show etherchannel summary (on SW-DIST and access switches)',
-        ]}
-      />
-
-      <CommandGroup
-        title="Routing & HSRP"
-        description="Verify routing tables and HSRP redundancy status"
-        commands={[
-          'show ip route',
-          'show ip route static',
-          'show standby brief (on R1, R2)',
-          'show standby',
-          'show standby detail',
-        ]}
-      />
-
-      <CommandGroup
-        title="Security & Port Configuration"
-        description="Monitor port security, DHCP snooping, and access lists"
-        commands={[
-          'show port-security',
-          'show port-security interface fa0/1',
-          'show mac address-table dynamic',
-          'show ip dhcp snooping',
-          'show ip dhcp snooping binding',
-          'show access-lists',
-          'show ip ssh',
-        ]}
-      />
-
-      <CommandGroup
-        title="Wireless Configuration"
-        description="Verify AP status and wireless associations"
-        commands={[
-          'show dot11 associations (on AP)',
-          'show bridge-group 1 (on AP)',
-          'show interfaces dot11Radio 0',
-        ]}
-      />
-
-      <CommandGroup
-        title="Network Management & Monitoring"
-        description="Check syslog, SNMP, and monitoring configuration"
-        commands={[
-          'show logging',
-          'show logging | include syslog',
-          'show snmp',
-          'show snmp community',
-          'show snmp engineID',
-        ]}
-      />
-
-      <CommandGroup
-        title="NAT & Address Translation"
-        description="Verify Network Address Translation on core routers"
-        commands={[
-          'show ip nat translations',
-          'show ip nat statistics',
-          'show ip nat inside source static',
-          'debug ip nat (use with caution)',
+          { cmd: 'show vlan brief', device: 'Switches' },
+          { cmd: 'show interfaces trunk', device: 'Switches' },
+          { cmd: 'show etherchannel summary', device: 'Switches' },
+          { cmd: 'show ip route', device: 'SW-DIST, R1, R2' },
+          { cmd: 'show standby brief', device: 'R1, R2' },
+          { cmd: 'show port-security interface fa0/3', device: 'Access Switches' },
+          { cmd: 'show mac address-table dynamic', device: 'Switches' },
+          { cmd: 'show ip dhcp snooping binding', device: 'Access Switches' },
+          { cmd: 'show access-lists', device: 'SW-DIST' },
+          { cmd: 'show ip dhcp pool', device: 'SW-DIST' }
         ]}
       />
 
@@ -124,8 +99,8 @@ S    10.0.20.0/24 [1/0] via 10.0.99.4`}</pre>
 ---- -------------------------------- --------- ------
 10   Development                       active    Po1,Po2,Po3
 20   Operations                        active    Po1,Po2,Po3
-30   Management                        active    Po1,Po2,Po3,Gi1/0/12
-40   Guest                             active    Po1,Po2,Po3,Gi1/0/12`}</pre>
+30   Management                        active    Po1,Po2,Po3,Fa0/12
+40   Guest                             active    Po1,Po2,Po3,Fa0/12`}</pre>
             </div>
           </div>
         </div>
@@ -152,7 +127,7 @@ S    10.0.20.0/24 [1/0] via 10.0.99.4`}</pre>
           </li>
           <li className="flex gap-3">
             <span className="font-bold text-accent min-w-6">5.</span>
-            <span>Ping across VLANs to ensure inter-VLAN routing and verify guest VLAN isolation with ACL counters</span>
+            <span>Ping across VLANs (e.g., from PC1 to PC3) to ensure inter-VLAN routing, and ping 8.8.8.8 (from PC1) to verify NAT and internet reachability</span>
           </li>
         </ol>
       </Card>

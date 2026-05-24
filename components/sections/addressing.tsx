@@ -77,25 +77,15 @@ export default function AddressingSection() {
       </Card>
 
       <Card className="border-border bg-card p-6">
-        <h3 className="font-semibold text-foreground mb-4">Core Transit IPs</h3>
+        <h3 className="font-semibold text-foreground mb-4">Transit & WAN Links</h3>
         <div className="space-y-2 text-sm text-muted-foreground font-mono">
-          <p>R1: <span className="text-foreground">10.0.99.1/29</span></p>
-          <p>R2: <span className="text-foreground">10.0.99.2/29</span></p>
-          <p>SW-DIST SVI 99: <span className="text-foreground">10.0.99.4/29</span></p>
-          <p className="mt-4">HSRP Virtual IP: <span className="text-foreground">10.0.99.3/29</span></p>
-        </div>
-      </Card>
-
-      <Card className="border-border bg-card p-6">
-        <h3 className="font-semibold text-foreground mb-4">WAN Subnets</h3>
-        <div className="space-y-2 text-sm text-muted-foreground font-mono">
-          <p>ISP1 ↔ R1: <span className="text-foreground">200.0.0.0/30</span> (ISP1 .1, R1 .2)</p>
-          <p>ISP2 ↔ R2: <span className="text-foreground">200.0.1.0/30</span> (ISP2 .1, R2 .2)</p>
+          <p>Transit IPs: R1 <span className="text-foreground">10.0.99.1</span>, R2 <span className="text-foreground">10.0.99.2</span>, SW-DIST SVI 99 <span className="text-foreground">10.0.99.4</span> (all /29).</p>
+          <p>WAN Links: ISP1 <span className="text-foreground">200.0.0.1</span> ↔ R1 <span className="text-foreground">200.0.0.2/30</span>; ISP2 <span className="text-foreground">200.0.1.1</span> ↔ R2 <span className="text-foreground">200.0.1.2/30</span>.</p>
         </div>
       </Card>
 
       <Card className="border-border bg-card p-6 overflow-x-auto">
-        <h3 className="font-semibold text-foreground mb-4">Wired PC IP Addressing</h3>
+        <h3 className="font-semibold text-foreground mb-4">End-Device IP Table (Wired PCs)</h3>
         <table className="w-full text-xs md:text-sm">
           <thead>
             <tr className="border-b border-border">
@@ -108,45 +98,108 @@ export default function AddressingSection() {
           </thead>
           <tbody>
             <tr className="border-b border-border">
-              <td className="py-2 text-foreground">PC1-2</td>
-              <td className="py-2 text-muted-foreground">ACSW1 Fa0/1-2</td>
+              <td className="py-2 text-foreground">PC1</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/3</td>
               <td className="py-2 text-muted-foreground">10</td>
-              <td className="py-2 text-muted-foreground">10.0.10.10-11/24</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.10.x)</td>
               <td className="py-2 text-muted-foreground">10.0.10.1</td>
             </tr>
             <tr className="border-b border-border">
-              <td className="py-2 text-foreground">PC3-4</td>
-              <td className="py-2 text-muted-foreground">ACSW1 Fa0/3-4</td>
+              <td className="py-2 text-foreground">PC2</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/4</td>
+              <td className="py-2 text-muted-foreground">10</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.10.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.10.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC3</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/5</td>
               <td className="py-2 text-muted-foreground">20</td>
-              <td className="py-2 text-muted-foreground">10.0.20.10-11/24</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.20.x)</td>
               <td className="py-2 text-muted-foreground">10.0.20.1</td>
             </tr>
             <tr className="border-b border-border">
-              <td className="py-2 text-foreground">PC5-6</td>
-              <td className="py-2 text-muted-foreground">ACSW1 Fa0/5-6</td>
+              <td className="py-2 text-foreground">PC4</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/6</td>
+              <td className="py-2 text-muted-foreground">20</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.20.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.20.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC5</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/7</td>
               <td className="py-2 text-muted-foreground">30</td>
-              <td className="py-2 text-muted-foreground">10.0.30.10-11/24</td>
+              <td className="py-2 text-muted-foreground">10.0.30.10/24</td>
               <td className="py-2 text-muted-foreground">10.0.30.1</td>
             </tr>
             <tr className="border-b border-border">
-              <td className="py-2 text-foreground">PC7-8</td>
-              <td className="py-2 text-muted-foreground">ACSW2 Fa0/1-2</td>
+              <td className="py-2 text-foreground">PC6</td>
+              <td className="py-2 text-muted-foreground">ACSW1 Fa0/8</td>
+              <td className="py-2 text-muted-foreground">30</td>
+              <td className="py-2 text-muted-foreground">10.0.30.11/24</td>
+              <td className="py-2 text-muted-foreground">10.0.30.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC7</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/3</td>
               <td className="py-2 text-muted-foreground">10</td>
-              <td className="py-2 text-muted-foreground">10.0.10.12-13/24</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.10.x)</td>
               <td className="py-2 text-muted-foreground">10.0.10.1</td>
             </tr>
             <tr className="border-b border-border">
-              <td className="py-2 text-foreground">PC9-10</td>
-              <td className="py-2 text-muted-foreground">ACSW2 Fa0/3-4</td>
+              <td className="py-2 text-foreground">PC8</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/4</td>
+              <td className="py-2 text-muted-foreground">10</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.10.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.10.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC9</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/5</td>
               <td className="py-2 text-muted-foreground">20</td>
-              <td className="py-2 text-muted-foreground">10.0.20.12-13/24</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.20.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.20.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC10</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/6</td>
+              <td className="py-2 text-muted-foreground">20</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.20.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.20.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC11</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/7</td>
+              <td className="py-2 text-muted-foreground">30</td>
+              <td className="py-2 text-muted-foreground">10.0.30.12/24</td>
+              <td className="py-2 text-muted-foreground">10.0.30.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC12</td>
+              <td className="py-2 text-muted-foreground">ACSW2 Fa0/8</td>
+              <td className="py-2 text-muted-foreground">30</td>
+              <td className="py-2 text-muted-foreground">10.0.30.13/24</td>
+              <td className="py-2 text-muted-foreground">10.0.30.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC13</td>
+              <td className="py-2 text-muted-foreground">ACSW3 Fa0/3</td>
+              <td className="py-2 text-muted-foreground">10</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.10.x)</td>
+              <td className="py-2 text-muted-foreground">10.0.10.1</td>
+            </tr>
+            <tr className="border-b border-border">
+              <td className="py-2 text-foreground">PC14</td>
+              <td className="py-2 text-muted-foreground">ACSW3 Fa0/4</td>
+              <td className="py-2 text-muted-foreground">20</td>
+              <td className="py-2 text-muted-foreground">DHCP (10.0.20.x)</td>
               <td className="py-2 text-muted-foreground">10.0.20.1</td>
             </tr>
             <tr>
-              <td className="py-2 text-foreground">PC11-15</td>
-              <td className="py-2 text-muted-foreground">ACSW2-3</td>
+              <td className="py-2 text-foreground">PC15</td>
+              <td className="py-2 text-muted-foreground">ACSW3 Fa0/5</td>
               <td className="py-2 text-muted-foreground">30</td>
-              <td className="py-2 text-muted-foreground">10.0.30.12-14/24</td>
+              <td className="py-2 text-muted-foreground">10.0.30.14/24</td>
               <td className="py-2 text-muted-foreground">10.0.30.1</td>
             </tr>
           </tbody>
@@ -154,12 +207,10 @@ export default function AddressingSection() {
       </Card>
 
       <Card className="border-border bg-card p-6">
-        <h3 className="font-semibold text-foreground mb-4">Server IPs (Static)</h3>
-        <div className="space-y-2 text-sm text-muted-foreground font-mono">
-          <p><span className="text-foreground">Syslog:</span> 192.168.50.10/24, GW 192.168.50.1</p>
-          <p><span className="text-foreground">DNS:</span> 192.168.50.20/24, GW 192.168.50.1</p>
-          <p><span className="text-foreground">Web:</span> 192.168.60.10/24, GW 192.168.60.1</p>
-          <p><span className="text-foreground">AP (Management):</span> 10.0.30.101/24, GW 10.0.30.1</p>
+        <h3 className="font-semibold text-foreground mb-4">Servers & Wireless IPs</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>Servers (static): Syslog <span className="font-mono text-foreground">192.168.50.10</span>, DNS <span className="font-mono text-foreground">192.168.50.20</span>, Web <span className="font-mono text-foreground">192.168.60.10</span>; gateways respectively.</p>
+          <p>Wireless: DHCP from pool <span className="font-mono text-foreground">10.0.40.100-150</span>; WRT300N LAN IP <span className="font-mono text-foreground">10.0.40.2</span>.</p>
         </div>
       </Card>
     </div>

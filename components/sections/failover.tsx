@@ -1,12 +1,41 @@
+'use client'
+
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Copy, Check } from 'lucide-react'
+
+interface CommandObj {
+  device: string
+  cmd: string
+}
 
 interface TestStepProps {
   step: number
   title: string
   description: string
-  commands: string[]
+  commands: CommandObj[]
   expectedResult: string
+}
+
+function CommandItem({ item }: { item: CommandObj }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    navigator.clipboard.writeText(item.cmd)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="flex items-center justify-between rounded bg-black/40 px-4 py-2 font-mono text-xs md:text-sm text-foreground">
+      <span>
+        <span className="text-muted-foreground select-none">{item.device} &gt; </span>
+        {item.cmd}
+      </span>
+      <button onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors ml-4" title="Copy command">
+        {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
+      </button>
+    </div>
+  )
 }
 
 function TestStep({ step, title, description, commands, expectedResult }: TestStepProps) {
@@ -25,10 +54,8 @@ function TestStep({ step, title, description, commands, expectedResult }: TestSt
       {commands.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase">Commands</p>
-          {commands.map((cmd, i) => (
-            <div key={i} className="rounded bg-black/40 px-4 py-2 font-mono text-xs md:text-sm text-foreground">
-              {cmd}
-            </div>
+          {commands.map((item, i) => (
+            <CommandItem key={i} item={item} />
           ))}
         </div>
       )}
@@ -66,84 +93,56 @@ export default function FailoverSection() {
         <TestStep
           step={1}
           title="HSRP Failover Test"
-          description="Verify that R2 becomes the active gateway when R1 goes offline"
+          description="Verify redundant gateway functionality"
           commands={[
-            'show standby brief          # On R1: verify it is Active',
-            'ping -t 10.0.99.3           # From PC in VLAN 10: continuous ping to HSRP VIP',
+            { device: 'PC1', cmd: 'ping 8.8.8.8 -t' },
+            { device: 'R1', cmd: 'interface gigabitEthernet 0/0/0' },
+            { device: 'R1', cmd: 'shutdown' }
           ]}
-          expectedResult="R1 shows as Active. Pings are successful. Then shut down R1's transit interface (R1(config)# interface Gi0/0/0 → shutdown). After ~10 seconds, R2 becomes Active and pings resume with only a few lost packets. Re-enable R1's interface and confirm R1 preempts and becomes Active again."
+          expectedResult="R2 becomes HSRP Active. Ping resumes after 1-2 drops. Restoring R1 Gi0/0/0 returns Active state to R1."
         />
 
         <TestStep
           step={2}
           title="WAN Failover Test"
-          description="Verify that traffic reroutes to R2's ISP when R1's WAN link fails"
+          description="Verify redundant ISP routing"
           commands={[
-            'show ip route 0.0.0.0       # On R1: view default route',
-            'traceroute 8.8.8.8          # Trace path via ISP1',
-            'show ip route 0.0.0.0       # After shutdown: verify floating static is installed',
+            { device: 'PC1', cmd: 'ping 8.8.8.8 -t' },
+            { device: 'R1', cmd: 'interface gigabitEthernet 0/0/1' },
+            { device: 'R1', cmd: 'shutdown' }
           ]}
-          expectedResult="R1 initially has primary route via ISP1 (200.0.0.1). After shutdown of R1's Gi0/0/1, the primary route disappears. The floating static route via 10.0.99.2 (R2) with AD 200 becomes active. HSRP tracking drops R1's priority by 30, making R2 the active gateway. Traceroute from clients now goes through R2 → ISP2."
+          expectedResult="HSRP track fires — R1 priority drops to 80, R2 becomes Active. Traffic reroutes via ISP2. Restoring R1 Gi0/0/1 restores R1 priority to 110."
         />
 
         <TestStep
           step={3}
           title="VLAN Isolation Test"
-          description="Verify that Guest VLAN (40) is properly isolated from internal VLANs"
+          description="Verify guest network restrictions"
           commands={[
-            'ping 192.168.50.10   # From VLAN 40 wireless client',
-            'ping 10.0.10.10      # From VLAN 40 wireless client',
-            'ping 8.8.8.8         # From VLAN 40 wireless client (should succeed)',
-            'show access-lists    # On SW-DIST to check ACL counters',
+            { device: 'Laptop1', cmd: 'ping 10.0.10.10' },
+            { device: 'Laptop1', cmd: 'ping 192.168.50.10' }
           ]}
-          expectedResult="Pings to internal subnets (VLANs 10, 20, 30, and Servers/DMZ) fail. Ping to 8.8.8.8 (internet) succeeds. ACL GUEST-ISOLATE on SW-DIST vlan 40 shows deny counters incrementing, confirming the restrictions are enforced."
+          expectedResult="Wireless clients can't ping internal VLANs; Internet works."
         />
 
         <TestStep
           step={4}
           title="Port Security Violation Test"
-          description="Verify that port security responds correctly to MAC address violations"
+          description="Verify switchport port-security"
           commands={[
-            'show port-security interface fa0/1          # On ACSW1 before violation',
-            'show port-security                          # Before and after violation',
+            { device: 'ACSW1', cmd: 'show port-security interface fa0/3' }
           ]}
-          expectedResult="Initially, port Fa0/1 is in secure-up state with the original PC's MAC learned. Disconnect the original PC and connect a different device. The port goes into restrict mode (possibly down). Show port-security shows the violation counter incrementing and port status as 'Secure-shutdown' or 'Restricted'. Reconnect the original PC – the port recovers automatically."
+          expectedResult="Unauthorized MAC triggers restrict violation and recovery."
         />
 
         <TestStep
           step={5}
           title="DHCP Snooping Test"
-          description="Verify that unauthorized DHCP servers are blocked"
+          description="Verify protection against rogue DHCP servers"
           commands={[
-            'show ip dhcp snooping          # On access switches before test',
-            'show ip dhcp snooping binding  # View only trusted bindings',
+            { device: 'ACSW1', cmd: 'show ip dhcp snooping statistics' }
           ]}
-          expectedResult="Connect an unauthorized DHCP server to an untrusted port on an access switch. Client PCs on that port do not receive DHCP offers. Show ip dhcp snooping displays only bindings from SW-DIST (the trusted source). When you remove the rogue DHCP server, clients obtain IPs normally again."
-        />
-
-        <TestStep
-          step={6}
-          title="EtherChannel Verification"
-          description="Verify LAG (Link Aggregation) status between SW-DIST and access switches"
-          commands={[
-            'show etherchannel summary       # On SW-DIST',
-            'show etherchannel 1 detail     # Show details of Po1',
-            'show interfaces port-channel 1 # Check port-channel status',
-          ]}
-          expectedResult="All port-channels (Po1, Po2, Po3) are active and in 'Layer 3' mode. The member interfaces (Gi1/0/1-2, Gi1/0/3-4, Gi1/0/5-6) are all bundled and active. Disable one member link on Po1 (e.g., shutdown Gi1/0/1) – traffic continues via the remaining link. Re-enable it and traffic balances again."
-        />
-
-        <TestStep
-          step={7}
-          title="End-to-End Ping Test"
-          description="Verify connectivity across all VLANs and to external networks"
-          commands={[
-            'ping 10.0.10.10  # From VLAN 20 PC',
-            'ping 10.0.20.10  # From VLAN 10 PC',
-            'ping 192.168.50.20  # From any internal VLAN (DNS server)',
-            'ping 8.8.8.8     # From any internal VLAN (external)',
-          ]}
-          expectedResult="All pings succeed, confirming inter-VLAN routing is working. Pings to servers succeed. External pings succeed via NAT on the active router. Wireless clients in VLAN 40 can reach 8.8.8.8 but not internal subnets."
+          expectedResult="Rogue DHCP server ignored on untrusted ports."
         />
       </div>
 
